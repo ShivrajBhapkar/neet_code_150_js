@@ -8,6 +8,17 @@ function FindWays(stairs_number) {
     }
     return DP[stairs_number];
 }
-
+function FindWaysOptimize(stairs_number) {
+    let first = 1;
+    let second = 1;
+    for (let indx = 2; indx <= stairs_number; indx++){
+        let third = first + second;
+        first = second;
+        second = third;
+    }
+    return second;
+}
+const waysutil = FindWaysOptimize(5);
+console.log(waysutil);
 const ways = FindWays(3);
 console.log(ways);
