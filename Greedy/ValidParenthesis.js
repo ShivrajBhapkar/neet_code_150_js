@@ -1,31 +1,32 @@
 function FindIfValid(str) {
     let length = str.length;
-    let open = 0;
-    let close = 0;
+    let minOpen = 0;
+    let maxOpen = 0;
     let indx = 0;
     while (indx < length) {
         if (str[indx] === "(") {
-            open++;
+            minOpen++;
+            maxOpen++;
+        } else if (str[indx] === ")") {
+            minOpen--;
+            maxOpen--;
+        } else {
+            minOpen++;
+            maxOpen--;
         }
-        if (str[indx] === ")") {
-            close++;
-        }
-        if (close > open) {
-            console.log("inside invalid");
+        if (maxOpen < 0) {
             return false;
+        }
+        if (minOpen < 0) {
+            minOpen = 0;
         }
         indx++;
     }
-    if (open !== close) {
-        return false;
-    }
-    return true;
+    return minOpen === 0;
 }
 
 const isValidstring = FindIfValid("(())");
 console.log(isValidstring);
-
-
 
 function checkValidString(s) {
     return isValid(s, 0, 0);
@@ -44,10 +45,10 @@ function isValid(s, balance, index) {
 
     const currentChar = s[index];
 
-    if (currentChar === '(') {
+    if (currentChar === "(") {
         // Treat '(' as left parenthesis
         return isValid(s, balance + 1, index + 1);
-    } else if (currentChar === ')') {
+    } else if (currentChar === ")") {
         // Treat ')' as right parenthesis
         return isValid(s, balance - 1, index + 1);
     } else {
@@ -61,7 +62,6 @@ function isValid(s, balance, index) {
 }
 
 // Example usage:
-console.log(checkValidString("()"));    // Output: true
-console.log(checkValidString("(*)"));   // Output: true
-console.log(checkValidString(")(*))"));  // Output: true
-
+console.log(checkValidString("()")); // Output: true
+console.log(checkValidString("(*)")); // Output: true
+console.log(checkValidString(")(*))")); // Output: true
