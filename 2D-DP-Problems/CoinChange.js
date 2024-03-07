@@ -1,4 +1,4 @@
-function CoinChange(amount, coins) {
+function CoinChange1(amount, coins) {
     const len = coins.length;
     const dp = Array.from({ length: len }, () => Array(amount + 1).fill(0));
     dp[0][0] = 1;
@@ -24,5 +24,17 @@ function CoinChange(amount, coins) {
     return dp[len - 1][amount];
 }
 
-const result = CoinChange(5, [1, 2, 5]);
-console.log(result);
+function CoinChange2(amount, coins) {
+    const dp = Array(amount + 1).fill(0);
+    dp[0] = 1;
+    for (let i = 0; i < coins.length; i++) {
+        for (let j = coins[i]; j <= amount; j++) {
+            dp[j] += dp[j - coins[i]];
+        }
+    }
+    return dp[amount];
+}
+const result1 = CoinChange1(5, [1, 2, 5]);
+const result2 = CoinChange2(5, [1, 2, 5]);
+console.log(result1);
+console.log(result2);
