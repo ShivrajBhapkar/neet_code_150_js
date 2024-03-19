@@ -1,129 +1,68 @@
-class Pair {
-    constructor(node, dist) {
-        this.node = node;
-        this.dist = dist;
+class Edge {
+    constructor(src, dest) {
+        this.src = src;
+        this.dest = dest;
+        this.wt = Math.abs(src[0] - dest[0]) + Math.abs(src[1] - dest[1]);
     }
-}
-class PriorityQueue {
-    constructor() {
-        this.heap = [];
-    }
-    enqueuene(element) {
-        this.heap.push(element);
-        this.heapUp();
-    }
-    dequeue() {
-        if (this.heap.length === 0) {
-            return null;
-        }
-        let popped = this.heap[0];
-        let lastnode = this.heap.pop();
-        if (this.heap.length > 0) {
-            this.heap[0] = lastnode;
-            this.heapifyDown();
-        }
-        return popped;
-    }
-    isEmpty() {
-        return this.heap.length === 0;
-    }
-    heapUp() {
-        let indx = this.heap.length - 1;
-        while (indx > 0) {
-            const element = this.heap[indx];
-            const parentIndx = Math.floor((indx - 1) / 2);
-            if (this.heap[parentIndx] <= element) {
-                break;
-            }
-            [this.heap[indx], this.heap[parentIndx]] = [
-                this.heap[parentIndx],
-                this.heap[indx],
-            ];
-            indx = parentIndx;
-        }
-    }
-    heapifyDown() {
-        let currentIndex = 0;
-        while (true) {
-            let leftChild = 2 * currentIndex + 1;
-            let rightChild = 2 * currentIndex + 2;
-            let currentMin = currentIndex;
-            if (
-                leftChild < this.heap.length &&
-                this.heap[leftChild] < this.heap[currentMin]
-            ) {
-                currentMin = leftChild;
-            }
 
-            if (
-                rightChild < this.heap.length &&
-                this.heap[rightChild] < this.heap[currentMin]
-            ) {
-                currentMin = rightChild;
-            }
-
-            if (currentMin !== currentIndex) {
-                [this.heap[currentIndex], this.heap[currentMin]] = [
-                    this.heap[currentMin],
-                    this.heap[currentIndex],
-                ];
-                currentIndex = currentMin;
-            } else {
-                break;
-            }
-        }
+    compareTo(otherEdge) {
+        return this.wt - otherEdge.wt;
     }
 }
 
-function networkDelayTime(times, n, k) {
-    const adj = [];
-    for (let i = 0; i <= n; i++) {
-        adj[i] = [];
-    }
-    for (const [src, dest, wt] of times) {
-        adj[src].push([dest, wt]);
-    }
-    const que = new PriorityQueue();
-    que.enqueuene([k, 0]);
-    const distance = Array(n + 1).fill(Number.MAX_SAFE_INTEGER);
-    distance[k] = 0;
-    while (!que.isEmpty()) {
-        const [node, dist] = que.dequeue();
-        if (distance[node] < dist) {
-            continue;
-        }
-        for (const [dest, currdist] of adj[node]) {
-            const nextDist = dist + currdist;
-            if (distance[dest] > nextDist) {
-                distance[dest] = nextDist;
-                que.enqueuene([dest, nextDist]);
+class Solution {
+    init(points, graph, map, n) {
+        for (let i = 0; i < n; i++) {
+            graph[i] = [];
+            for (let j = 0; j < n; j++) {
+                if (i !== j) {
+                    graph[i].push(new Edge(points[i], points[j]));
+                }
             }
         }
-    }
-    let maxDistance = 0;
-    for (let i = 1; i <= n; i++) {
-        if (distance[i] === Number.MAX_SAFE_INTEGER) {
-            return -1;
+        for (let i = 0; i < n; i++) {
+            map.set(points[i], i);
         }
-        maxDistance = Math.max(maxDistance, distance[i]);
     }
-    return maxDistance;
+
+    FindMinCost(points) {
+        const n = points.length;
+        const graph = new Array(n);
+        const map = new Map();
+        this.init(points, graph, map, n);
+        const visited = new Map();
+        const pq = [];
+        pq.push(new Edge(points[0], points[0]));
+        let min = 0;
+        while (pq.length > 0) {
+            pq.sort((a, b) => a.compareTo(b)); // Sort the priority queue based on edge weight
+            const curr = pq.shift();
+            if (!visited.get(curr.dest)) {
+                min += curr.wt;
+                visited.set(curr.dest, true);
+                const indx = map.get(curr.dest);
+                for (let j = 0; j < graph[indx].length; j++) {
+                    const e = graph[indx][j];
+                    pq.push(new Edge(e.src, e.dest));
+                }
+            }
+        }
+        return min;
+    }
 }
 
-const times1 = [
-    [2, 1, 1],
-    [2, 3, 1],
-    [3, 4, 1],
+const solution = new Solution();
+const points1 = [
+    [0, 0],
+    [2, 2],
+    [3, 10],
+    [5, 2],
+    [7, 0],
 ];
-const n1 = 4,
-    k1 = 2;
-console.log(networkDelayTime(times1, n1, k1)); // Output: 2
-const times2 = [[1, 2, 1]];
-const n2 = 2,
-    k2 = 1;
-console.log(networkDelayTime(times2, n2, k2)); // Output: 1
-
-const times3 = [[1, 2, 1]];
-const n3 = 2,
-    k3 = 2;
-console.log(networkDelayTime(times3, n3, k3)); // Output: -1
+const points2 = [
+    [3, 12],
+    [-2, 5],
+    [-4, 1],
+];
+console.log(solution.FindMinCost(points1)); // Output: 20
+console.log(solution.FindMinCost(points2));
